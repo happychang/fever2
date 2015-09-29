@@ -27,7 +27,8 @@ function ColorBar(value, area, type)
 		else if(density < 16)		return "#FF8C00"
 		else if(density < 32)		return "#FF6600"
 		else if(density < 64)		return "#FF0000"
-		else				return "#CC0000"
+		else if(density < 128)		return "#FF0000"
+		else				return "#a020f0"
 	}
 }
 
@@ -60,6 +61,7 @@ function ColorBar2(value, pop, type)
 		else if(density < 20)		return "#FF8C00"
 		else if(density < 40)		return "#FF6600"
 		else if(density < 80)		return "#FF0000"
-		else				return "#CC0000"
+		else if(density < 160)		return "#CC0000"
+		else				return "#a020f0"
 	}
 }

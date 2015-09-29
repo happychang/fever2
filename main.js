@@ -20,7 +20,7 @@ $.getJSON('http://happychang.github.io/fever-data/population.json', function (da
 function initialize() {
 
     /*map setting*/
-    $('#map-canvas').height(window.outerHeight / 2);
+    $('#map-canvas').height(window.outerHeight / 1.6);
 
     map = new google.maps.Map(document.getElementById('map-canvas'), {
         zoom: 12,
@@ -130,22 +130,22 @@ function initialize() {
 	{
 		area = event.feature.getProperty('pop');
         	density = parseInt(event.feature.getProperty('num') / area * 10000)/100 + '%';
-		area = area + '人, ';
+		area = area + '人=';
 	}
 	else
 	{
 		area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
         	density = parseInt(event.feature.getProperty('num') / area);
-		area = area + ' km2, ';
+		area = area + 'km2=';
 	}
 
 
-        $('#content').html('<div>' + Cunli + '：' + event.feature.getProperty('num') + '例(' + area + density + ')</div>').removeClass('text-muted');
+        $('#content').html(Cunli + '：' + event.feature.getProperty('num') + '例(/' + area + density + ')').removeClass('text-muted');
     });
 
     map.data.addListener('mouseout', function (event) {
         map.data.revertStyle();
-        $('#content').html('在地圖上滑動或點選以顯示數據').addClass('text-muted');
+        $('#content').html('在地圖上滑動或點選以顯示數據.........................').addClass('text-muted');
     });
 
     map.data.addListener('click', function (event) {
@@ -217,26 +217,28 @@ function initialize() {
 		if( $('input[name="map-div"]:checked').val() == 1 )
 		{
 			$('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
-                            		'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
-                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
-                            		'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%');
-			$('#color3').html('<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
-                            		'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
-                            		'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
-                            		'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
-                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+                            			'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
+                            			'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
+                            			'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%' +
+						'<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
+                            			'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
+                            			'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
+                            			'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
+                            			'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+			$('#color3').html('');
 		}
 		else
 		{
 			$('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
-	                            	'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-	                            	'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
-	                            	'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
-	                            	'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256');
-			$('#color3').html('<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
-	                            	'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
-	                            	'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
-	                            	'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+	                            		'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+	                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
+	                            		'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
+	                            		'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256' +
+						'<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
+	                            		'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
+	                            		'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
+	                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+			$('#color3').html('');
 		}
 		showDateMap(new Date(lastTime), cunli);
 	});
@@ -244,31 +246,33 @@ function initialize() {
 	$('#map-30').on('click', function () 
 	{
 		$('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
-					'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
-					'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
+						'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
+						'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
 		if( $('input[name="map-div"]:checked').val() == 1 )
 		{
 			$('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
-                            		'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
-                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
-                            		'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%');
-			$('#color3').html('<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
-                            		'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
-                            		'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
-                            		'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
-                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+                            			'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
+                            			'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
+                            			'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%' +
+						'<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
+                            			'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
+                            			'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
+                            			'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
+                            			'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+			$('#color3').html('');
 		}
 		else
 		{
 			$('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
-	                            	'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-	                            	'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
-	                            	'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
-	                            	'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256');
-			$('#color3').html('<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
-	                            	'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
-	                            	'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
-	                            	'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+	                            		'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+	                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
+	                            		'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
+	                            		'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256' +
+						'<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
+	                            		'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
+	                            		'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
+	                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+			$('#color3').html('');
 		}
 		showDateMap(new Date(lastTime), cunli);
 	});
@@ -278,28 +282,30 @@ function initialize() {
 		if( $('input[name="map-div"]:checked').val() == 1 )
 		{
 			$('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>0.1%~0.2%' +
-					'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%~0.4%' +
-					'<span class="colorBox" style="background-color: #87cefa;"></span>0.4%~0.8%' +
-					'<span class="colorBox" style="background-color: #00bfff;"></span>>0.8%');
+						'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%~0.4%' +
+						'<span class="colorBox" style="background-color: #87cefa;"></span>0.4%~0.8%' +
+						'<span class="colorBox" style="background-color: #00bfff;"></span>>0.8%');
 			$('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
-                            		'<span class="colorBox" style="background-color: #ffd700;"></span>-0.1%~+0.1%');
+                            			'<span class="colorBox" style="background-color: #ffd700;"></span>-0.1%~+0.1%');
 			$('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>0.1%~0.2%' +
-                            		'<span class="colorBox" style="background-color: #FF6600;"></span>0.2%~0.4%' +
-                            		'<span class="colorBox" style="background-color: #FF0000;"></span>0.4%~0.8%' +
-                            		'<span class="colorBox" style="background-color: #CC0000;"></span>>0.8%');
+                            			'<span class="colorBox" style="background-color: #FF6600;"></span>0.2%~0.4%' +
+                            			'<span class="colorBox" style="background-color: #FF0000;"></span>0.4%~0.8%' +
+                            			'<span class="colorBox" style="background-color: #CC0000;"></span>0.8%~1.6%' +
+						'<span class="colorBox" style="background-color: #a020f0;"></span>>1.6%');
 		}
 		else
 		{
 			$('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>8~16' +
-					'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-					'<span class="colorBox" style="background-color: #87cefa;"></span>32~64' +
-					'<span class="colorBox" style="background-color: #00bfff;"></span>>64');
+						'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+						'<span class="colorBox" style="background-color: #87cefa;"></span>32~64' +
+						'<span class="colorBox" style="background-color: #00bfff;"></span>>64');
 			$('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
-                            		'<span class="colorBox" style="background-color: #ffd700;"></span>-8~+8');
+                            			'<span class="colorBox" style="background-color: #ffd700;"></span>-8~+8');
 			$('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>8~16' +
-                            		'<span class="colorBox" style="background-color: #FF6600;"></span>16~32' +
-                            		'<span class="colorBox" style="background-color: #FF0000;"></span>32~64' +
-                            		'<span class="colorBox" style="background-color: #CC0000;"></span>>64');
+                            			'<span class="colorBox" style="background-color: #FF6600;"></span>16~32' +
+                            			'<span class="colorBox" style="background-color: #FF0000;"></span>32~64' +
+                            			'<span class="colorBox" style="background-color: #CC0000;"></span>64~128' +
+                            			'<span class="colorBox" style="background-color: #a020f0;"></span>>128');
 		}
 		showDateMap(new Date(lastTime), cunli);
 	});
@@ -437,7 +443,7 @@ function showDateMap(clickedDate, cunli) {
         	value.setProperty('num', count);
 	}
     });
-    $('#title').html(clickedDateKey + ' 累積病例');
+    $('#title').html(clickedDateKey);
 }
 
 function showDayMap(clickedDate, cunli) {
