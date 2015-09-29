@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
     <head>
-        <title>登革熱密度地圖 v1.3</title>
+        <title>登革熱密度地圖 v2.0</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
         <meta property="og:title" content="登革熱密度地圖">
@@ -70,27 +70,36 @@
                                         return false">台東</a>
                             </div>
                         </div>
-                        <div class="col-lg-8">人數
-                            <span class="colorBox" style="background-color: white;"></span>0
-                            <span class="colorBox" style="background-color: #87cefa;"></span>1人
-                            <span class="colorBox" style="background-color: #00bfff;"></span>2~4人
+			<div class="col-lg-5" style="float: left;">
+                        	<div id="color1">人數: <span class="colorBox" style="background-color: white;"></span>0
+					<span class="colorBox" style="background-color: #87cefa;"></span>1人
+					<span class="colorBox" style="background-color: #00bfff;"></span>2~4人
+				</div>
+                        	<div id="color2">密度: <span class="colorBox" style="background-color: #00FF00;"></span><16
+	                            	<span class="colorBox" style="background-color: #00CC00;"></span>16~32
+	                            	<span class="colorBox" style="background-color: #FFFF00;"></span>32~64
+	                            	<span class="colorBox" style="background-color: #ffd700;"></span>64~128
+	                            	<span class="colorBox" style="background-color: #FF8C00;"></span>128~256
+				</div>
+                        	<div id="color3"><span class="colorBox" style="background-color: #FF6600;"></span>256~512
+	                            	<span class="colorBox" style="background-color: #FF0000;"></span>512~1024
+	                            	<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048
+	                            	<span class="colorBox" style="background-color: #a020f0;"></span>>2048
+				</div>
+				<h4 id="content" class="text-muted">在地圖上滑動或點選以顯示數據</h4>
                         </div>
-                        <div class="col-lg-8">密度
-                            <span class="colorBox" style="background-color: #00FF00;"></span><16
-                            <span class="colorBox" style="background-color: #00CC00;"></span>16~32
-                            <br class="hidden-md hidden-lg">
-                            <span class="colorBox" style="background-color: #FFFF00;"></span>32~64
-                            <span class="colorBox" style="background-color: #ffd700;"></span>64~128
-                            <br class="hidden-md hidden-lg">
-                            <span class="colorBox" style="background-color: #FF8C00;"></span>128~256
-                            <span class="colorBox" style="background-color: #FF6600;"></span>256~512
-                            <br class="hidden-md hidden-lg">
-                            <span class="colorBox" style="background-color: #FF0000;"></span>512~1024
-                            <span class="colorBox" style="background-color: #CC0000;"></span>1024~2048
-                            <span class="colorBox" style="background-color: #a020f0;"></span>>2048
-                        </div>
-			<h4 id="content" class="text-muted col-lg-5">在地圖上滑動或點選以顯示數據</h4>
-                        <h4 id="title" class="col-lg-3"></h4>
+			<div class="col-lg-3" style="float: center;">
+				<div>種類:
+					<input type="radio" id="map-all" name="map-type" value="0" checked=true> 全部累計
+					<input type="radio" id="map-30" name="map-type" value="1"> 30天累計
+					<input type="radio" id="map-7change" name="map-type" value="2"> 週變化
+				</div>
+				<div>分母:
+					<input type="radio" id="map-area" name="map-div" value="0" checked=true> 面積
+					<input type="radio" id="map-population" name="map-div" value="1"> 村里人口
+				</div>
+	                        <h4 id="title"></h4>
+			</div>
 			<div id="map-canvas" ></div>
                 </div>
                 <div id="histogram" >
@@ -100,7 +109,7 @@
                         </li>
                     </ul>
                     <div id="myTabContent" class="tab-content">
-                        <div class="text-muted pull-right">*密度=人數/面積, 點選下方長條圖示會在地圖上呈現累積病例分佈</div>
+                        <div class="text-muted pull-right">*點選下方長條圖示會在地圖上呈現累積病例分佈</div>
                         <div class="tab-pane fade in active" id="total"></div>
                     </div>
                 </div>
@@ -113,15 +122,19 @@
                 <p>&nbsp;</p>
             </div>
             <div id="listNoneCunli"></div>
+	    <hr>
             <div style="text-align: center;">
 		<a href="http://kiang.github.io/TainanDengueMap/taiwan/">台灣2015登革熱地圖</a> | 
+                <a href="http://happychang.github.io/fever2/">登革熱密度地圖v2</a>
+            </div>
+            <div style="text-align: center;">
                 <a href="http://happychang.github.io/fever/">登革熱密度地圖</a> | 
                 <a href="http://happychang.github.io/fever30/">三十天內(登革熱密度地圖)</a> | 
                 <a href="http://happychang.github.io/fever7change/">週變化(登革熱密度地圖)</a> | 
                 <a href="http://happychang.github.io/fever-rate/">登革熱發生率地圖</a>
             </div>
             <div style="text-align: center;">
-                <a href="https://github.com/happychang/fever">原始碼</a> | 
+                <a href="https://github.com/happychang/fever2">原始碼</a> | 
                 <a href="http://data.gov.tw/node/21025">資料來源</a> | 
                 <a href="https://github.com/kiang/TainanDengueMap">程式參考</a> | 
                 <a href="http://nidss.cdc.gov.tw/ch/NIDSS_DiseaseMap.aspx?dc=1&dt=4&disease=061">傳染病統計資料查詢系統</a>

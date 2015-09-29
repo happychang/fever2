@@ -3,9 +3,18 @@
 var map,
         currentPlayIndex = false,
         cunli;
+var days7 = 78400000*7;
+var days30 = 78400000*30;
+var latestTime = 0;
+var lastTime = 0;
 
-$.getJSON('http://happychang.github.io/fever-data/Dengue.json', function (data) {
+$.getJSON('http://kiang.github.io/TainanDengueMap/taiwan/Dengue.json', function (data) {
     DengueTW = data;
+});
+
+$.getJSON('http://happychang.github.io/fever-data/population.json', function (data) 
+{
+    population = data;
 });
 
 function initialize() {
@@ -28,6 +37,20 @@ function initialize() {
                 countyId = value.getProperty('COUNTY_ID'),
                 townId = value.getProperty('TOWN_ID'),
                 count = 0;
+
+        if (DengueTW[key]) {
+            DengueTW[key].forEach(function (val) {
+                var recTime = new Date(val[0]).getTime();
+		if( latestTime < recTime )
+                {
+                    latestTime = recTime;
+                }
+            });
+        }
+
+        if (population[key]) {
+	    value.setProperty('pop', population[key]);
+        }
     
         if(countyId.length === 2) {
             countyId += '000';
@@ -40,7 +63,9 @@ function initialize() {
         }
     });
 
-    showDateMap(new Date(), cunli);
+//    $('#map-all').trigger('click');
+    lastTime = latestTime;
+    showDateMap(new Date(lastTime), cunli);
 
     var totalNum = 0, ignoreNum = 0;
     var block = '下面病例數字未包含村里資訊，因此無法在地圖中顯示：<div class="clearfix"><br /></div>';
@@ -51,14 +76,14 @@ function initialize() {
 		var month = new Date(v[i][0]).getMonth();
             	if( month > 5 )
 		{
-                num += v[i][1];
+	                num += v[i][1];
 		}
             }
             if (k !== 'total') {
 		if( num > 0 )
 		{
-                ignoreNum += num;
-                block += '<div class="col-lg-2">' + areas[k] + ': ' + num + '</div>';
+	                ignoreNum += num;
+        	        block += '<div class="col-lg-2">' + areas[k] + ': ' + num + '</div>';
 		}
             } else {
                 totalNum = num;
@@ -71,7 +96,22 @@ function initialize() {
 
     map.data.setStyle(function (feature) {
 
-	color = ColorBar(feature.getProperty('num'), feature.getProperty('Shape_Area')); 
+	var selected = $('input[name="map-type"]:checked').val();
+	if( selected == 2 && feature.getProperty('sum') == 0 )
+	{
+		color = "white";
+	}
+	else
+	{
+		if( $('input[name="map-div"]:checked').val() == 1 )
+		{
+			color = ColorBar2(feature.getProperty('num'), feature.getProperty('pop'), selected ); 
+		}
+		else
+		{
+			color = ColorBar(feature.getProperty('num'), feature.getProperty('Shape_Area'), selected ); 
+		}
+	}
         
         return {
             fillColor: color,
@@ -86,10 +126,21 @@ function initialize() {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: 'white'});
 
-	area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
-        density = parseInt(event.feature.getProperty('num') / area);
+	if( $('input[name="map-div"]:checked').val() == 1 )
+	{
+		area = event.feature.getProperty('pop');
+        	density = parseInt(event.feature.getProperty('num') / area * 10000)/100 + '%';
+		area = area + '人, ';
+	}
+	else
+	{
+		area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
+        	density = parseInt(event.feature.getProperty('num') / area);
+		area = area + ' km2, ';
+	}
 
-        $('#content').html('<div>' + Cunli + '：' + event.feature.getProperty('num') + '例(' + area + ' km2, ' + density + ')</div>').removeClass('text-muted');
+
+        $('#content').html('<div>' + Cunli + '：' + event.feature.getProperty('num') + '例(' + area + density + ')</div>').removeClass('text-muted');
     });
 
     map.data.addListener('mouseout', function (event) {
@@ -156,16 +207,124 @@ function initialize() {
         }
         return false;
     });
+
+/* radio for map type */
+	$('#map-all').on('click', function () 
+	{
+		$('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
+					'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
+					'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
+		if( $('input[name="map-div"]:checked').val() == 1 )
+		{
+			$('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
+                            		'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
+                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
+                            		'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%');
+			$('#color3').html('<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
+                            		'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
+                            		'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
+                            		'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
+                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+		}
+		else
+		{
+			$('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
+	                            	'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+	                            	'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
+	                            	'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
+	                            	'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256');
+			$('#color3').html('<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
+	                            	'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
+	                            	'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
+	                            	'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+		}
+		showDateMap(new Date(lastTime), cunli);
+	});
+
+	$('#map-30').on('click', function () 
+	{
+		$('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
+					'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
+					'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
+		if( $('input[name="map-div"]:checked').val() == 1 )
+		{
+			$('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
+                            		'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
+                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
+                            		'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%');
+			$('#color3').html('<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
+                            		'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
+                            		'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
+                            		'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
+                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+		}
+		else
+		{
+			$('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
+	                            	'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+	                            	'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
+	                            	'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
+	                            	'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256');
+			$('#color3').html('<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
+	                            	'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
+	                            	'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
+	                            	'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+		}
+		showDateMap(new Date(lastTime), cunli);
+	});
+
+	$('#map-7change').on('click', function () 
+	{
+		if( $('input[name="map-div"]:checked').val() == 1 )
+		{
+			$('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>0.1%~0.2%' +
+					'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%~0.4%' +
+					'<span class="colorBox" style="background-color: #87cefa;"></span>0.4%~0.8%' +
+					'<span class="colorBox" style="background-color: #00bfff;"></span>>0.8%');
+			$('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
+                            		'<span class="colorBox" style="background-color: #ffd700;"></span>-0.1%~+0.1%');
+			$('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>0.1%~0.2%' +
+                            		'<span class="colorBox" style="background-color: #FF6600;"></span>0.2%~0.4%' +
+                            		'<span class="colorBox" style="background-color: #FF0000;"></span>0.4%~0.8%' +
+                            		'<span class="colorBox" style="background-color: #CC0000;"></span>>0.8%');
+		}
+		else
+		{
+			$('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>8~16' +
+					'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+					'<span class="colorBox" style="background-color: #87cefa;"></span>32~64' +
+					'<span class="colorBox" style="background-color: #00bfff;"></span>>64');
+			$('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
+                            		'<span class="colorBox" style="background-color: #ffd700;"></span>-8~+8');
+			$('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>8~16' +
+                            		'<span class="colorBox" style="background-color: #FF6600;"></span>16~32' +
+                            		'<span class="colorBox" style="background-color: #FF0000;"></span>32~64' +
+                            		'<span class="colorBox" style="background-color: #CC0000;"></span>>64');
+		}
+		showDateMap(new Date(lastTime), cunli);
+	});
+
+/* radio for map type2 */
+	$('#map-area').on('click', function () 
+	{
+		$('input[name="map-type"]:checked').trigger('click');
+	});
+
+	$('#map-population').on('click', function () 
+	{
+		$('input[name="map-type"]:checked').trigger('click');
+	});
+
 }
 
 function createStockChart(Cunli, cunli) {
     var series = [];
 
     for (var i = 0; i < DengueTW[Cunli].length; i++) {
-	var month = new Date(DengueTW[Cunli][i][0]).getMonth();
-        if( month > 5 )
+	var recDate = new Date(DengueTW[Cunli][i][0]);
+        if( recDate.getMonth() > 5 )
         {
-          series.push([new Date(DengueTW[Cunli][i][0]).getTime(), DengueTW[Cunli][i][1]]);
+          series.push([recDate.getTime(), DengueTW[Cunli][i][1]]);
         }
     }
 
@@ -219,22 +378,64 @@ function showDateMap(clickedDate, cunli) {
             dd = clickedDate.getDate().toString(),
             clickedDateKey = yyyy + '-' + (mm[1] ? mm : '0' + mm[0]) + '-' + (dd[1] ? dd : '0' + dd[0]);
 
+    lastTime = clickedDate.getTime();
+    var time1 = lastTime - days7;
+    var time2 = time1 - days7;
+
     cunli.forEach(function (value) {
         var key = value.getProperty('VILLAGE_ID'),
                 count = 0;
+	var count1=0, count2=0;
 
         if (DengueTW[key]) {
             DengueTW[key].forEach(function (val) {
-                var recordDate = new Date(val[0]);
-	        if( recordDate.getMonth() > 5 )
-	        {
-                if (recordDate <= clickedDate) {
-                    count += val[1];
-                }
+		
+		if( $('input[name="map-type"]:checked').val() == 1 )
+		{
+	                var diff = clickedDate.getTime() - new Date(val[0]).getTime();
+			if( diff < days30 && diff >= 0)
+	        	{
+	                    count += val[1];
+      			}
+		}
+		else if(  $('input[name="map-type"]:checked').val() == 2 )
+		{
+	                var recordTime = new Date(val[0]).getTime();
+			if( recordTime > lastTime )
+			{
+			}
+			else if( recordTime > time1 )
+	                {
+	                    count1 += val[1];
+	                }
+			else if( recordTime > time2 )
+			{
+	                    count2 += val[1];
+			}
+		}
+		else
+		{
+                	var recordDate = new Date(val[0]);
+	        	if( recordDate.getMonth() > 5 )
+	        	{
+                		if (recordDate <= clickedDate)
+				{
+		                    count += val[1];
+                		}
+			}		
 		}
             });
         }
-        value.setProperty('num', count);
+
+	if( $('input[name="map-type"]:checked').val() == 2 )
+	{
+	        value.setProperty('num', count1 - count2); 
+		value.setProperty('sum', count1 + count2); 
+	}
+	else
+	{
+        	value.setProperty('num', count);
+	}
     });
     $('#title').html(clickedDateKey + ' 累積病例');
 }
