@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
     <head>
-        <title>登革熱密度地圖 v2.1</title>
+        <title>登革熱密度地圖 v2.2</title>
         <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
         <meta charset="utf-8">
         <meta property="og:title" content="登革熱密度地圖">
@@ -18,16 +18,6 @@
             #map-canvas {
                 height: 100%;
                 width: 100%;
-            }
-            #histogram {
-                height: 15%;
-                width: 100%;
-                min-height: 200px;
-            }
-            #myTabContent {
-                height: 30%;
-                width: 100%;
-                min-height: 200px;
             }
             #title {
                 text-align: center;
@@ -63,6 +53,7 @@
 					<input type="radio" id="map-all" name="map-type" value="0" checked=true> 全部累計
 					<input type="radio" id="map-30" name="map-type" value="1"> 30天累計
 					<input type="radio" id="map-7change" name="map-type" value="2"> 週變化
+					<input type="radio" id="map-spread" name="map-type" value="3"> 擴散
 				</div>
 				<div>分母:
 					<input type="radio" id="map-area" name="map-div" value="0" checked=true> 面積

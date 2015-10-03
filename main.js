@@ -3,10 +3,11 @@
 var map,
         currentPlayIndex = false,
         cunli;
-var days7 = 78400000*7;
-var days30 = 78400000*30;
+var days7 = 86400000*7;
+var days30 = 86400000*30;
 var latestTime = 0;
 var lastTime = 0;
+var spreadTime = 0;
 
 $.getJSON('http://kiang.github.io/TainanDengueMap/taiwan/Dengue.json', function (data) {
     DengueTW = data;
@@ -20,7 +21,7 @@ $.getJSON('http://happychang.github.io/fever-data/population.json', function (da
 function initialize() {
 
     /*map setting*/
-    $('#map-canvas').height(window.outerHeight / 1.6);
+    $('#map-canvas').height(window.outerHeight / 1.7);
 
     map = new google.maps.Map(document.getElementById('map-canvas'), {
         zoom: 12,
@@ -51,6 +52,7 @@ function initialize() {
         if (population[key]) {
 	    value.setProperty('pop', population[key]);
         }
+        //value.setProperty('spread', 0);
     
         if(countyId.length === 2) {
             countyId += '000';
@@ -63,7 +65,6 @@ function initialize() {
         }
     });
 
-//    $('#map-all').trigger('click');
     lastTime = latestTime;
     showDateMap(new Date(lastTime), cunli);
 
@@ -91,27 +92,37 @@ function initialize() {
         }
     })
     block += '<div class="clearfix"><br /></div>';
-    block += '七月起目前共有病例 ' + totalNum + ' ，無法顯示的數量為 ' + ignoreNum;
+    block += '七月起共有病例 ' + totalNum + ' ，無法顯示的數量為 ' + ignoreNum;
     $('div#listNoneCunli').html(block);
 
     map.data.setStyle(function (feature) {
-
-	var selected = $('input[name="map-type"]:checked').val();
-	if( selected == 2 && feature.getProperty('sum') == 0 )
-	{
-		color = "white";
-	}
-	else
-	{
-		if( $('input[name="map-div"]:checked').val() == 1 )
-		{
-			color = ColorBar2(feature.getProperty('num'), feature.getProperty('pop'), selected ); 
-		}
-		else
-		{
-			color = ColorBar(feature.getProperty('num'), feature.getProperty('Shape_Area'), selected ); 
-		}
-	}
+        var selected = $('input[name="map-type"]:checked').val();
+        if( selected == 2 && feature.getProperty('sum') == 0 )
+        {
+            color = "white";
+        }
+        else if( selected == 3 )
+        {
+            if( feature.getProperty('spread') )
+            {
+                color = ColorBar3(feature.getProperty('spread'), spreadTime);
+            }
+            else
+            {
+                color = "white";
+            }
+        }
+        else
+        {
+            if( $('input[name="map-div"]:checked').val() == 1 )
+            {
+                color = ColorBar2(feature.getProperty('num'), feature.getProperty('pop'), selected ); 
+            }
+            else
+            {
+                color = ColorBar(feature.getProperty('num'), feature.getProperty('Shape_Area'), selected ); 
+            }
+        }
         
         return {
             fillColor: color,
@@ -126,21 +137,38 @@ function initialize() {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: 'white'});
 
-	if( $('input[name="map-div"]:checked').val() == 1 )
-	{
-		area = event.feature.getProperty('pop');
-        	density = parseInt(event.feature.getProperty('num') / area * 10000)/100 + '%';
-		area = area + '人=';
-	}
-	else
-	{
-		area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
-        	density = parseInt(event.feature.getProperty('num') / area);
-		area = area + 'km2=';
-	}
+        if( $('input[name="map-type"]:checked').val() == 3 )
+        {
+            if( event.feature.getProperty('spread') )
+            { 
+                var date = new Date(event.feature.getProperty('spread'));
+                area = "第五例" + (date.getMonth()+1) + "-" + date.getDate();
+		density = ", 第" + (date.getTime() - spreadTime)/86400000 + "天";
+            }
+            else
+            {
+                area = "";
+                density = "";
+            }
+        }
+        else
+        {
+            if( $('input[name="map-div"]:checked').val() == 1 )
+            {
+                area = event.feature.getProperty('pop');
+                density = parseInt(event.feature.getProperty('num') / area * 10000)/100 + '%';
+                area = '/' + area + '人=';
+            }
+            else
+            {
+                area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
+                density = parseInt(event.feature.getProperty('num') / area);
+                area = '/' + area + 'km2=';
+            }
+        }
 
 
-        $('#content').html(Cunli + '：' + event.feature.getProperty('num') + '例(/' + area + density + ')').removeClass('text-muted');
+        $('#content').html(Cunli + '：' + event.feature.getProperty('num') + '例(' + area + density + ')').removeClass('text-muted');
     });
 
     map.data.addListener('mouseout', function (event) {
@@ -209,128 +237,160 @@ function initialize() {
     });
 
 /* radio for map type */
-	$('#map-all').on('click', function () 
-	{
-		$('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
-					'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
-					'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
-		if( $('input[name="map-div"]:checked').val() == 1 )
-		{
-			$('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
-                            			'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
-                            			'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
-                            			'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%' +
-						'<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
-                            			'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
-                            			'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
-                            			'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
-                            			'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
-			$('#color3').html('');
-		}
-		else
-		{
-			$('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
-	                            		'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-	                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
-	                            		'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
-	                            		'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256' +
-						'<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
-	                            		'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
-	                            		'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
-	                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
-			$('#color3').html('');
-		}
-		showDateMap(new Date(lastTime), cunli);
-	});
+    $('#map-all').on('click', function () 
+    {
+        $('input[name="map-div"]:checked').trigger('click');
+    });
 
-	$('#map-30').on('click', function () 
-	{
-		$('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
-						'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
-						'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
-		if( $('input[name="map-div"]:checked').val() == 1 )
-		{
-			$('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
-                            			'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.4%' +
-                            			'<span class="colorBox" style="background-color: #FFFF00;"></span>0.4%~0.7%' +
-                            			'<span class="colorBox" style="background-color: #ffd700;"></span>0.7%~1%' +
-						'<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
-                            			'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
-                            			'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
-                            			'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
-                            			'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
-			$('#color3').html('');
-		}
-		else
-		{
-			$('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
-	                            		'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-	                            		'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
-	                            		'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
-	                            		'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256' +
-						'<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
-	                            		'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
-	                            		'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
-	                            		'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
-			$('#color3').html('');
-		}
-		showDateMap(new Date(lastTime), cunli);
-	});
+    $('#map-30').on('click', function () 
+    {
+        $('input[name="map-div"]:checked').trigger('click');
+    });
 
-	$('#map-7change').on('click', function () 
-	{
-		if( $('input[name="map-div"]:checked').val() == 1 )
-		{
-			$('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>0.1%~0.2%' +
-						'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%~0.4%' +
-						'<span class="colorBox" style="background-color: #87cefa;"></span>0.4%~0.8%' +
-						'<span class="colorBox" style="background-color: #00bfff;"></span>>0.8%');
-			$('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
-                            			'<span class="colorBox" style="background-color: #ffd700;"></span>-0.1%~+0.1%');
-			$('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>0.1%~0.2%' +
-                            			'<span class="colorBox" style="background-color: #FF6600;"></span>0.2%~0.4%' +
-                            			'<span class="colorBox" style="background-color: #FF0000;"></span>0.4%~0.8%' +
-                            			'<span class="colorBox" style="background-color: #CC0000;"></span>0.8%~1.6%' +
-						'<span class="colorBox" style="background-color: #a020f0;"></span>>1.6%');
-		}
-		else
-		{
-			$('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>8~16' +
-						'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-						'<span class="colorBox" style="background-color: #87cefa;"></span>32~64' +
-						'<span class="colorBox" style="background-color: #00bfff;"></span>>64');
-			$('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
-                            			'<span class="colorBox" style="background-color: #ffd700;"></span>-8~+8');
-			$('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>8~16' +
-                            			'<span class="colorBox" style="background-color: #FF6600;"></span>16~32' +
-                            			'<span class="colorBox" style="background-color: #FF0000;"></span>32~64' +
-                            			'<span class="colorBox" style="background-color: #CC0000;"></span>64~128' +
-                            			'<span class="colorBox" style="background-color: #a020f0;"></span>>128');
-		}
-		showDateMap(new Date(lastTime), cunli);
-	});
+    $('#map-7change').on('click', function () 
+    {
+        $('input[name="map-div"]:checked').trigger('click');
+    });
 
-/* radio for map type2 */
-	$('#map-area').on('click', function () 
-	{
-		$('input[name="map-type"]:checked').trigger('click');
-	});
+    $('#map-spread').on('click', function () 
+    {
+        $('input[name="map-div"]:checked').trigger('click');
+    });
 
-	$('#map-population').on('click', function () 
-	{
-		$('input[name="map-type"]:checked').trigger('click');
-	});
+/* radio for map div */
+    $('#map-area').on('click', function () 
+    {
+        if( $('input[name="map-type"]:checked').val() == 2 )
+        {
+            $('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>8~16' +
+				'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+				'<span class="colorBox" style="background-color: #87cefa;"></span>32~64' +
+				'<span class="colorBox" style="background-color: #00bfff;"></span>>64');
+            $('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
+				'<span class="colorBox" style="background-color: #ffd700;"></span>-8~+8');
+            $('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>8~16' +
+				'<span class="colorBox" style="background-color: #FF6600;"></span>16~32' +
+				'<span class="colorBox" style="background-color: #FF0000;"></span>32~64' +
+				'<span class="colorBox" style="background-color: #CC0000;"></span>64~128' +
+				'<span class="colorBox" style="background-color: #a020f0;"></span>>128');
+        }
+        else if( $('input[name="map-type"]:checked').val() == 3 )
+        {
+            $('#color1').html('週數: <span class="colorBox" style="background-color: #a020f0;"></span>0' +
+				'<span class="colorBox" style="background-color: #CC0000;"></span>1' +
+				'<span class="colorBox" style="background-color: #FF0000;"></span>2' +
+				'<span class="colorBox" style="background-color: #FF6600;"></span>3' +
+				'<span class="colorBox" style="background-color: #FF8C00;"></span>4' +
+				'<span class="colorBox" style="background-color: #ffd700;"></span>5' +
+				'<span class="colorBox" style="background-color: #FFFF00;"></span>6' +
+				'<span class="colorBox" style="background-color: #00CC00;"></span>7' +
+				'<span class="colorBox" style="background-color: #00FF00;"></span>8' +
+				'<span class="colorBox" style="background-color: #00bfff;"></span>9' +
+				'<span class="colorBox" style="background-color: #87cefa;"></span>10' +
+				'<span class="colorBox" style="background-color: #AAAAAA;"></span>11' +
+				'<span class="colorBox" style="background-color: #CCCCCC;"></span>>12');
+            $('#color2').html('');
+            $('#color3').html('');
+        }
+        else
+        {
+            $('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
+				'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
+				'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
+            $('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
+				'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
+				'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
+				'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
+				'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256' +
+				'<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
+				'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
+				'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
+				'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+            $('#color3').html('');
+        }
+	showDateMap(new Date(lastTime), cunli);
+    });
 
+    $('#map-population').on('click', function () 
+    {
+        if( $('input[name="map-type"]:checked').val() == 2 )
+        {
+            $('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>0.1%~0.2%' +
+				'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%~0.4%' +
+				'<span class="colorBox" style="background-color: #87cefa;"></span>0.4%~0.8%' +
+				'<span class="colorBox" style="background-color: #00bfff;"></span>>0.8%');
+            $('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
+				'<span class="colorBox" style="background-color: #ffd700;"></span>-0.1%~+0.1%');
+            $('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>0.1%~0.2%' +
+				'<span class="colorBox" style="background-color: #FF6600;"></span>0.2%~0.4%' +
+				'<span class="colorBox" style="background-color: #FF0000;"></span>0.4%~0.8%' +
+				'<span class="colorBox" style="background-color: #CC0000;"></span>0.8%~1.6%' +
+				'<span class="colorBox" style="background-color: #a020f0;"></span>>1.6%');
+        }
+        else if( $('input[name="map-type"]:checked').val() == 3 )
+        {
+            $('#color1').html('週數: <span class="colorBox" style="background-color: #a020f0;"></span>0' +
+				'<span class="colorBox" style="background-color: #CC0000;"></span>1' +
+				'<span class="colorBox" style="background-color: #FF0000;"></span>2' +
+				'<span class="colorBox" style="background-color: #FF6600;"></span>3' +
+				'<span class="colorBox" style="background-color: #FF8C00;"></span>4' +
+				'<span class="colorBox" style="background-color: #ffd700;"></span>5' +
+				'<span class="colorBox" style="background-color: #FFFF00;"></span>6' +
+				'<span class="colorBox" style="background-color: #00CC00;"></span>7' +
+				'<span class="colorBox" style="background-color: #00FF00;"></span>8' +
+				'<span class="colorBox" style="background-color: #00bfff;"></span>9' +
+				'<span class="colorBox" style="background-color: #87cefa;"></span>10' +
+				'<span class="colorBox" style="background-color: #AAAAAA;"></span>11' +
+				'<span class="colorBox" style="background-color: #CCCCCC;"></span>>12');
+            $('#color2').html('');
+            $('#color3').html('');
+        }
+        else
+        {
+            $('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
+				'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
+				'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
+            $('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
+				'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.3%' +
+				'<span class="colorBox" style="background-color: #FFFF00;"></span>0.3%~0.5%' +
+				'<span class="colorBox" style="background-color: #ffd700;"></span>0.5%~1%' +
+				'<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
+				'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
+				'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
+				'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
+				'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+            $('#color3').html('');
+        }
+        showDateMap(new Date(lastTime), cunli);
+    });
 }
 
 function createStockChart(Cunli, cunli) {
     var series = [];
+    var series7 = [];
+    var series7change = [];
+    var sum = 0;
+    var sum2 = 0;
 
     for (var i = 0; i < DengueTW[Cunli].length; i++) {
 	var recDate = new Date(DengueTW[Cunli][i][0]);
+        var recTime = recDate.getTime();
         if( recDate.getMonth() > 5 )
         {
-          series.push([recDate.getTime(), DengueTW[Cunli][i][1]]);
+            series.push([recTime, DengueTW[Cunli][i][1]]);
+// calculate a week
+            sum += DengueTW[Cunli][i][1];
+            if( i > 6 )
+	    {
+	        sum -= DengueTW[Cunli][i-7][1];
+                sum2 += DengueTW[Cunli][i-7][1];
+                if( i > 13 )
+                {
+                    sum2 -= DengueTW[Cunli][i-14][1];
+                    series7change.push([recTime, parseInt((sum-sum2)/7*10)/10]);
+                }
+	    }
+	    series7.push([recTime, parseInt(sum/7*10)/10]);
         }
     }
 
@@ -347,7 +407,7 @@ function createStockChart(Cunli, cunli) {
         chart: {
             alignTicks: false,
             width: $('#myTabContent').width(),
-            height: $('#myTabContent').height()
+            height: 250
         },
         rangeSelector: {
             enabled: false
@@ -374,6 +434,18 @@ function createStockChart(Cunli, cunli) {
                 type: 'column',
                 name: Cunli,
                 data: series,
+            },{
+               	type: 'line',
+		linewidth: 1,
+		color: '#CCCCCC',
+        	name: '週平均',
+	        data: series7
+            },{
+               	type: 'spline',
+		linewidth: 1,
+		color: 'pink',
+        	name: '週變化',
+	        data: series7change
             }]
     });
 }
@@ -391,58 +463,91 @@ function showDateMap(clickedDate, cunli) {
     cunli.forEach(function (value) {
         var key = value.getProperty('VILLAGE_ID'),
                 count = 0;
-	var count1=0, count2=0;
-
+	var count1=0, count2=0, spread=0;
+	var selected = $('input[name="map-type"]:checked').val();
+        value.setProperty('spread', 0);
+	
         if (DengueTW[key]) {
             DengueTW[key].forEach(function (val) {
-		
-		if( $('input[name="map-type"]:checked').val() == 1 )
-		{
-	                var diff = clickedDate.getTime() - new Date(val[0]).getTime();
-			if( diff < days30 && diff >= 0)
-	        	{
-	                    count += val[1];
-      			}
-		}
-		else if(  $('input[name="map-type"]:checked').val() == 2 )
-		{
-	                var recordTime = new Date(val[0]).getTime();
-			if( recordTime > lastTime )
-			{
-			}
-			else if( recordTime > time1 )
-	                {
-	                    count1 += val[1];
-	                }
-			else if( recordTime > time2 )
-			{
-	                    count2 += val[1];
-			}
-		}
-		else
-		{
-                	var recordDate = new Date(val[0]);
-	        	if( recordDate.getMonth() > 5 )
-	        	{
-                		if (recordDate <= clickedDate)
-				{
-		                    count += val[1];
-                		}
-			}		
-		}
+                if( selected == 1 )
+                {
+// 30 days
+                    var diff = lastTime - new Date(val[0]).getTime();
+                    if( diff < days30 && diff >= 0)
+                    {
+                        count += val[1];
+                    }
+                }
+                else if( selected == 2 )
+                {
+// compare two weeks
+                    var recordTime = new Date(val[0]).getTime();
+                    if( recordTime > lastTime )
+                    {
+                    }
+                    else if( recordTime > time1 )
+                    {
+                        count1 += val[1];
+                    }
+                    else if( recordTime > time2 )
+                    {
+                        count2 += val[1];
+                    }
+                }
+                else if( selected == 3 )
+                {
+// spread
+               	    var recordDate = new Date(val[0]);
+                    
+                    if( recordDate.getMonth() > 5 )
+                    {
+                        if (recordDate <= clickedDate)
+                        {
+                            if( count < 5 && count+val[1]>=5 )
+                            {
+                                var spread = new Date(val[0]).getTime();
+				value.setProperty('spread', spread);
+                                if( spreadTime == 0 )
+                                {
+                                    spreadTime = spread;
+                                }
+                                else
+                                {
+                                    if( spreadTime > spread )
+                                    {
+                                        spreadTime = spread;
+                                    }
+                                }
+                            }
+                            count += val[1];
+                        }
+                    }
+                }
+                else
+                {
+// all
+                    var recordDate = new Date(val[0]);
+  	            if( recordDate.getMonth() > 5 )
+                    {
+              	        if (recordDate <= clickedDate)
+                        {
+                            count += val[1];
+                        }
+                    }
+                }
             });
         }
 
-	if( $('input[name="map-type"]:checked').val() == 2 )
-	{
-	        value.setProperty('num', count1 - count2); 
-		value.setProperty('sum', count1 + count2); 
-	}
-	else
-	{
-        	value.setProperty('num', count);
-	}
-    });
+        if( selected == 2 )
+        {
+            value.setProperty('num', count1 - count2); 
+            value.setProperty('sum', count1 + count2); 
+        }
+        else
+        {
+            value.setProperty('num', count);
+        }
+     });
     $('#title').html(clickedDateKey);
 }
 
@@ -471,7 +576,7 @@ function showDayMap(clickedDate, cunli) {
 $(window).resize(function () {
     var len = $('#myTabContent > .tab-pane').length;
     for (var i = 0; i < len; i++) {
-        $('#myTabContent > .tab-pane').eq(i).highcharts().setSize($('#myTabContent').width(), $('#myTabContent').height());
+        $('#myTabContent > .tab-pane').eq(i).highcharts().setSize($('#myTabContent').width(), 250);
     }
 });
 
