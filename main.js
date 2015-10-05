@@ -3,6 +3,23 @@
 var map,
         currentPlayIndex = false,
         cunli;
+
+var pink1 = "#FFB5C5";
+var pink2 = "#EEA9B8";
+var gray1 = "#CCCCCC";
+var gray2 = "#AAAAAA";
+var blue1 = "#87CEFA";
+var blue2 = "#00BFFF";
+var green1 = "#00FF00";
+var green2 = "#00CC00";
+var yellow1 = "#FFFF00";
+var yellow2 = "#DDDD00";
+var orange1 = "#FF9900";
+var orange2 = "#DD6600";
+var red1 = "#FF0000";
+var red2 = "#CC0000";
+var purple1 = "#A020F0";
+
 var days7 = 86400000*7;
 var days30 = 86400000*30;
 var latestTime = 0;
@@ -262,50 +279,50 @@ function initialize() {
     {
         if( $('input[name="map-type"]:checked').val() == 2 )
         {
-            $('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>8~16' +
-				'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-				'<span class="colorBox" style="background-color: #87cefa;"></span>32~64' +
-				'<span class="colorBox" style="background-color: #00bfff;"></span>>64');
-            $('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
-				'<span class="colorBox" style="background-color: #ffd700;"></span>-8~+8');
-            $('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>8~16' +
-				'<span class="colorBox" style="background-color: #FF6600;"></span>16~32' +
-				'<span class="colorBox" style="background-color: #FF0000;"></span>32~64' +
-				'<span class="colorBox" style="background-color: #CC0000;"></span>64~128' +
-				'<span class="colorBox" style="background-color: #a020f0;"></span>>128');
+            $('#color1').html('減少: <span class="colorBox" style="background-color: ' + green1  + ';"></span>8~16' +
+				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>16~32' +
+				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>32~64' +
+				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>>64');
+            $('#color2').html('持平: <span class="colorBox" style="background-color: ' + yellow1 + ';"></span>-4~+4人' +
+				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>-8~+8');
+            $('#color3').html('增加: <span class="colorBox" style="background-color: ' + orange1 + ';"></span>8~16' +
+				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>16~32' +
+				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>32~64' +
+				'<span class="colorBox" style="background-color: ' + red2        + ';"></span>64~128' +
+				'<span class="colorBox" style="background-color: ' + purple1     + ';"></span>>128');
         }
         else if( $('input[name="map-type"]:checked').val() == 3 )
         {
-            $('#color1').html('週數: <span class="colorBox" style="background-color: #a020f0;"></span>0' +
-				'<span class="colorBox" style="background-color: #CC0000;"></span>1' +
-				'<span class="colorBox" style="background-color: #FF0000;"></span>2' +
-				'<span class="colorBox" style="background-color: #FF6600;"></span>3' +
-				'<span class="colorBox" style="background-color: #FF8C00;"></span>4' +
-				'<span class="colorBox" style="background-color: #ffd700;"></span>5' +
-				'<span class="colorBox" style="background-color: #FFFF00;"></span>6' +
-				'<span class="colorBox" style="background-color: #00CC00;"></span>7' +
-				'<span class="colorBox" style="background-color: #00FF00;"></span>8' +
-				'<span class="colorBox" style="background-color: #00bfff;"></span>9' +
-				'<span class="colorBox" style="background-color: #87cefa;"></span>10' +
-				'<span class="colorBox" style="background-color: #AAAAAA;"></span>11' +
-				'<span class="colorBox" style="background-color: #CCCCCC;"></span>>12');
-            $('#color2').html('');
-            $('#color3').html('');
+            $('#color1').html('週數: <span class="colorBox" style="background-color: ' + purple1 + ';"></span>0'+
+	    			'<span class="colorBox" style="background-color: ' + red2        + ';"></span>1' +
+				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>2' +
+				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>3' +
+				'<span class="colorBox" style="background-color: ' + orange1     + ';"></span>4');
+	    $('#color2').html('<span class="colorBox" style="background-color: ' + yellow2       + ';"></span>5' +
+				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>6' +
+				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>7' +
+				'<span class="colorBox" style="background-color: ' + green1      + ';"></span>8' +
+				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>9' +
+				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>10' +
+				'<span class="colorBox" style="background-color: ' + gray2       + ';"></span>11' +
+				'<span class="colorBox" style="background-color: ' + gray1       + ';"></span>12');
+            $('#color3').html('<span class="colorBox" style="background-color: ' + pink2         + ';"></span>13' +
+				'<span class="colorBox" style="background-color: ' + pink1       + ';"></span>>14');
         }
         else
         {
             $('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
-				'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
-				'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
-            $('#color2').html('密度: <span class="colorBox" style="background-color: #00FF00;"></span><16' +
-				'<span class="colorBox" style="background-color: #00CC00;"></span>16~32' +
-				'<span class="colorBox" style="background-color: #FFFF00;"></span>32~64' +
-				'<span class="colorBox" style="background-color: #ffd700;"></span>64~128' +
-				'<span class="colorBox" style="background-color: #FF8C00;"></span>128~256' +
-				'<span class="colorBox" style="background-color: #FF6600;"></span>256~512' +
-				'<span class="colorBox" style="background-color: #FF0000;"></span>512~1024' +
-				'<span class="colorBox" style="background-color: #CC0000;"></span>1024~2048' +
-				'<span class="colorBox" style="background-color: #a020f0;"></span>>2048');
+				'<span class="colorBox" style="background-color: ' + blue1      + ';"></span>1人' +
+				'<span class="colorBox" style="background-color: ' + blue2      + ';"></span>2~4人');
+            $('#color2').html('密度: <span class="colorBox" style="background-color: ' + green1 + ';"></span><16' +
+				'<span class="colorBox" style="background-color: ' + green2     + ';"></span>16~32' +
+				'<span class="colorBox" style="background-color: ' + yellow1    + ';"></span>32~64' +
+				'<span class="colorBox" style="background-color: ' + yellow2    + ';"></span>64~128' +
+				'<span class="colorBox" style="background-color: ' + orange1    + ';"></span>128~256' +
+				'<span class="colorBox" style="background-color: ' + orange2    + ';"></span>256~512' +
+				'<span class="colorBox" style="background-color: ' + red1       + ';"></span>512~1024' +
+				'<span class="colorBox" style="background-color: ' + red2       + ';"></span>1024~2048' +
+				'<span class="colorBox" style="background-color: ' + purple1    + ';"></span>>2048');
             $('#color3').html('');
         }
 	showDateMap(new Date(lastTime), cunli);
@@ -315,50 +332,50 @@ function initialize() {
     {
         if( $('input[name="map-type"]:checked').val() == 2 )
         {
-            $('#color1').html('減少: <span class="colorBox" style="background-color: #00FF00;"></span>0.1%~0.2%' +
-				'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%~0.4%' +
-				'<span class="colorBox" style="background-color: #87cefa;"></span>0.4%~0.8%' +
-				'<span class="colorBox" style="background-color: #00bfff;"></span>>0.8%');
-            $('#color2').html('持平: <span class="colorBox" style="background-color: #FFFF00;"></span>-4~+4人' +
-				'<span class="colorBox" style="background-color: #ffd700;"></span>-0.1%~+0.1%');
-            $('#color3').html('增加: <span class="colorBox" style="background-color: #FF8C00;"></span>0.1%~0.2%' +
-				'<span class="colorBox" style="background-color: #FF6600;"></span>0.2%~0.4%' +
-				'<span class="colorBox" style="background-color: #FF0000;"></span>0.4%~0.8%' +
-				'<span class="colorBox" style="background-color: #CC0000;"></span>0.8%~1.6%' +
-				'<span class="colorBox" style="background-color: #a020f0;"></span>>1.6%');
+            $('#color1').html('減少: <span class="colorBox" style="background-color: ' + green1  + ';"></span>0.1%~0.2%' +
+				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>0.2%~0.4%' +
+				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>0.4%~0.8%' +
+				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>>0.8%');
+            $('#color2').html('持平: <span class="colorBox" style="background-color: ' + yellow1 + ';"></span>-4~+4人' +
+				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>-0.1%~+0.1%');
+            $('#color3').html('增加: <span class="colorBox" style="background-color: ' + orange1 + ';"></span>0.1%~0.2%' +
+				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>0.2%~0.4%' +
+				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>0.4%~0.8%' +
+				'<span class="colorBox" style="background-color: ' + red2        + ';"></span>0.8%~1.6%' +
+				'<span class="colorBox" style="background-color: ' + purple1     + ';"></span>>1.6%');
         }
         else if( $('input[name="map-type"]:checked').val() == 3 )
         {
-            $('#color1').html('週數: <span class="colorBox" style="background-color: #a020f0;"></span>0' +
-				'<span class="colorBox" style="background-color: #CC0000;"></span>1' +
-				'<span class="colorBox" style="background-color: #FF0000;"></span>2' +
-				'<span class="colorBox" style="background-color: #FF6600;"></span>3' +
-				'<span class="colorBox" style="background-color: #FF8C00;"></span>4' +
-				'<span class="colorBox" style="background-color: #ffd700;"></span>5' +
-				'<span class="colorBox" style="background-color: #FFFF00;"></span>6' +
-				'<span class="colorBox" style="background-color: #00CC00;"></span>7' +
-				'<span class="colorBox" style="background-color: #00FF00;"></span>8' +
-				'<span class="colorBox" style="background-color: #00bfff;"></span>9' +
-				'<span class="colorBox" style="background-color: #87cefa;"></span>10' +
-				'<span class="colorBox" style="background-color: #AAAAAA;"></span>11' +
-				'<span class="colorBox" style="background-color: #CCCCCC;"></span>>12');
-            $('#color2').html('');
-            $('#color3').html('');
+            $('#color1').html('週數: <span class="colorBox" style="background-color: ' + purple1 + ';"></span>0'+
+	    			'<span class="colorBox" style="background-color: ' + red2        + ';"></span>1' +
+				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>2' +
+				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>3' +
+				'<span class="colorBox" style="background-color: ' + orange1     + ';"></span>4');
+	    $('#color2').html('<span class="colorBox" style="background-color: ' + yellow2       + ';"></span>5' +
+				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>6' +
+				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>7' +
+				'<span class="colorBox" style="background-color: ' + green1      + ';"></span>8' +
+				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>9' +
+				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>10' +
+				'<span class="colorBox" style="background-color: ' + gray2       + ';"></span>11' +
+				'<span class="colorBox" style="background-color: ' + gray1       + ';"></span>12');
+            $('#color3').html('<span class="colorBox" style="background-color: ' + pink2         + ';"></span>13' +
+				'<span class="colorBox" style="background-color: ' + pink1       + ';"></span>>14');
         }
         else
         {
             $('#color1').html('人數: <span class="colorBox" style="background-color: white;"></span>0' +
-				'<span class="colorBox" style="background-color: #87cefa;"></span>1人' +
-				'<span class="colorBox" style="background-color: #00bfff;"></span>2~4人');
-            $('#color2').html('發生率: <span class="colorBox" style="background-color: #00FF00;"></span><0.2%' +
-				'<span class="colorBox" style="background-color: #00CC00;"></span>0.2%-0.3%' +
-				'<span class="colorBox" style="background-color: #FFFF00;"></span>0.3%~0.5%' +
-				'<span class="colorBox" style="background-color: #ffd700;"></span>0.5%~1%' +
-				'<span class="colorBox" style="background-color: #FF8C00;"></span>1%~2%' +
-				'<span class="colorBox" style="background-color: #FF6600;"></span>2%~4%' +
-				'<span class="colorBox" style="background-color: #FF0000;"></span>4%~8%' +
-				'<span class="colorBox" style="background-color: #CC0000;"></span>8%~16%' +
-				'<span class="colorBox" style="background-color: #a020f0;"></span>>16%');
+				'<span class="colorBox" style="background-color: ' + blue1      + ';"></span>1人' +
+				'<span class="colorBox" style="background-color: ' + blue2      + ';"></span>2~4人');
+            $('#color2').html('密度: <span class="colorBox" style="background-color: ' + green1 + ';"></span><0.1%' +
+				'<span class="colorBox" style="background-color: ' + green2     + ';"></span>0.1%-0.3%' +
+				'<span class="colorBox" style="background-color: ' + yellow1    + ';"></span>0.3%~0.5%' +
+				'<span class="colorBox" style="background-color: ' + yellow2    + ';"></span>0.5%~1%' +
+				'<span class="colorBox" style="background-color: ' + orange1    + ';"></span>1%~2%' +
+				'<span class="colorBox" style="background-color: ' + orange2    + ';"></span>2%~4%' +
+				'<span class="colorBox" style="background-color: ' + red1       + ';"></span>4%~8%' +
+				'<span class="colorBox" style="background-color: ' + red2       + ';"></span>8%~16%' +
+				'<span class="colorBox" style="background-color: ' + purple1    + ';"></span>>16%');
             $('#color3').html('');
         }
         showDateMap(new Date(lastTime), cunli);
@@ -387,9 +404,9 @@ function createStockChart(Cunli, cunli) {
                 if( i > 13 )
                 {
                     sum2 -= DengueTW[Cunli][i-14][1];
-                    series7change.push([recTime, parseInt((sum-sum2)/7*10)/10]);
                 }
-	    }
+                series7change.push([recTime, parseInt((sum-sum2)/7*10)/10]);
+            }
 	    series7.push([recTime, parseInt(sum/7*10)/10]);
         }
     }
