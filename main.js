@@ -69,7 +69,6 @@ function initialize() {
         if (population[key]) {
 	    value.setProperty('pop', population[key]);
         }
-        //value.setProperty('spread', 0);
     
         if(countyId.length === 2) {
             countyId += '000';
@@ -157,14 +156,31 @@ function initialize() {
         if( $('input[name="map-type"]:checked').val() == 3 )
         {
             if( event.feature.getProperty('spread') )
-            { 
+            {
                 var date = new Date(event.feature.getProperty('spread'));
-                area = "第五例" + (date.getMonth()+1) + "-" + date.getDate();
+                if( $('input[name="map-div"]:checked').val() == 1 )
+                {
+                    area = "/" + event.feature.getProperty('pop') + "人>0.1% " + (date.getMonth()+1) + "-" + date.getDate();
+                }
+                else
+                {
+                    area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
+                    area = "/" + area + "km2>16 " + (date.getMonth()+1) + "-" + date.getDate();
+                }
 		density = ", 第" + (date.getTime() - spreadTime)/86400000 + "天";
             }
             else
             {
-                area = "";
+                if( $('input[name="map-div"]:checked').val() == 1 )
+                {
+                    area = event.feature.getProperty('pop');
+                    density = parseInt(event.feature.getProperty('num') / area * 10000)/100 + '%';
+                    area = '/' + area + '人=';
+                }
+                else
+                {
+                    area = "";
+                }
                 density = "";
             }
         }
@@ -214,7 +230,7 @@ function initialize() {
         if (false === currentPlayIndex) {
             currentPlayIndex = 125;
         } else {
-            currentPlayIndex += 1;
+            currentPlayIndex += 7;
             $(this).addClass('active disabled').find('.glyphicon').show();
         }
 
@@ -284,7 +300,7 @@ function initialize() {
 				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>32~64' +
 				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>>64');
             $('#color2').html('持平: <span class="colorBox" style="background-color: ' + yellow1 + ';"></span>-4~+4人' +
-				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>-8~+8');
+				'<span class="colorBox" style="background-color: ' + yellow2     + ';"></span>-8~+8');
             $('#color3').html('增加: <span class="colorBox" style="background-color: ' + orange1 + ';"></span>8~16' +
 				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>16~32' +
 				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>32~64' +
@@ -337,7 +353,7 @@ function initialize() {
 				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>0.4%~0.8%' +
 				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>>0.8%');
             $('#color2').html('持平: <span class="colorBox" style="background-color: ' + yellow1 + ';"></span>-4~+4人' +
-				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>-0.1%~+0.1%');
+				'<span class="colorBox" style="background-color: ' + yellow2     + ';"></span>-0.1%~+0.1%');
             $('#color3').html('增加: <span class="colorBox" style="background-color: ' + orange1 + ';"></span>0.1%~0.2%' +
 				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>0.2%~0.4%' +
 				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>0.4%~0.8%' +
@@ -520,19 +536,51 @@ function showDateMap(clickedDate, cunli) {
                     {
                         if (recordDate <= clickedDate)
                         {
-                            if( count < 5 && count+val[1]>=5 )
+                            if( $('input[name="map-div"]:checked').val() == 1 )
                             {
-                                var spread = new Date(val[0]).getTime();
-				value.setProperty('spread', spread);
-                                if( spreadTime == 0 )
+				var pop = value.getProperty('pop');
+                                var count3 = count+val[1];
+                                if( count < 5 || (count/pop) < 0.001 )
                                 {
-                                    spreadTime = spread;
-                                }
-                                else
-                                {
-                                    if( spreadTime > spread )
+                                    if( count3 >= 5 && (count3/pop) >= 0.001 )
                                     {
-                                        spreadTime = spread;
+                                        var spread = new Date(val[0]).getTime();
+                                        value.setProperty('spread', spread);
+                                        if( spreadTime == 0 )
+                                        {
+                                            spreadTime = spread;
+                                        }
+                                        else
+                                        {
+                                            if( spreadTime > spread )
+                                            {
+                                                spreadTime = spread;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+				var area = value.getProperty('Shape_Area');
+                                var count3 = count+val[1];
+                                if( count < 5 || (count/area) < 16 )
+                                {
+                                    if( count3 >= 5 && (count3/area) >= 16 )
+                                    {
+                                        var spread = new Date(val[0]).getTime();
+                                        value.setProperty('spread', spread);
+                                        if( spreadTime == 0 )
+                                        {
+                                            spreadTime = spread;
+                                        }
+                                        else
+                                        {
+                                            if( spreadTime > spread )
+                                            {
+                                                spreadTime = spread;
+                                            }
+                                        }
                                     }
                                 }
                             }
