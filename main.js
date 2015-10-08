@@ -35,6 +35,12 @@ $.getJSON('http://happychang.github.io/fever-data/population.json', function (da
     population = data;
 });
 
+$.getJSON('http://happychang.github.io/fever-data/area.json', function (data) 
+{
+    area = data;
+});
+
+
 function initialize() {
 
     /*map setting*/
@@ -68,6 +74,10 @@ function initialize() {
 
         if (population[key]) {
 	    value.setProperty('pop', population[key]);
+        }
+
+        if (area[key]) {
+	    value.setProperty('area', area[key]);
         }
     
         if(countyId.length === 2) {
@@ -136,7 +146,7 @@ function initialize() {
             }
             else
             {
-                color = ColorBar(feature.getProperty('num'), feature.getProperty('Shape_Area'), selected ); 
+                color = ColorBar(feature.getProperty('num'), feature.getProperty('area'), selected ); 
             }
         }
         
@@ -164,8 +174,7 @@ function initialize() {
                 }
                 else
                 {
-                    area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
-                    area = "/" + area + "km2>16 " + (date.getMonth()+1) + "-" + date.getDate();
+                    area = "/" + event.feature.getProperty('area') + "km2>16 " + (date.getMonth()+1) + "-" + date.getDate();
                 }
 		density = ", 第" + (date.getTime() - spreadTime)/86400000 + "天";
             }
@@ -194,8 +203,9 @@ function initialize() {
             }
             else
             {
-                area = parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
+		area = event.feature.getProperty('area');
                 density = parseInt(event.feature.getProperty('num') / area);
+                //density = parseInt(event.feature.getProperty('num') / area) + ", " + parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
                 area = '/' + area + 'km2=';
             }
         }
@@ -562,7 +572,7 @@ function showDateMap(clickedDate, cunli) {
                             }
                             else
                             {
-				var area = value.getProperty('Shape_Area');
+				var area = value.getProperty('area');
                                 var count3 = count+val[1];
                                 if( count < 5 || (count/area) < 16 )
                                 {

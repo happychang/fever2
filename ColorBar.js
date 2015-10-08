@@ -1,6 +1,6 @@
 function ColorBar(value, area, type) 
 {
-	density = value / area / 10000;
+	density = value / area;
 	if(type < 2)
 	{
 		if(value == 0)			return "white"
