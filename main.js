@@ -8,16 +8,26 @@ var pink1 = "#FFB5C5";
 var pink2 = "#EEA9B8";
 var gray1 = "#CCCCCC";
 var gray2 = "#AAAAAA";
-var blue1 = "#87CEFA";
-var blue2 = "#00BFFF";
-var green1 = "#00FF00";
-var green2 = "#00CC00";
-var yellow1 = "#FFFF00";
-var yellow2 = "#DDDD00";
-var orange1 = "#FF9900";
-var orange2 = "#DD6600";
-var red1 = "#FF0000";
-var red2 = "#CC0000";
+var blue1 = "#66AAFF";
+var blue2 = "#4499FF";
+var blue3 = "#0080FF";
+var blue4 = "#0070FF";
+var green1 = "#30FF30";
+var green2 = "#00FF00";
+var green3 = "#00EE00";
+var green4 = "#00DD00";
+var yellow1 = "#FFFF40";
+var yellow2 = "#FFFF00";
+var yellow3 = "#EEEE00";
+var yellow4 = "#DDDD00";
+var orange1 = "#FF9030";
+var orange2 = "#FF8000";
+var orange3 = "#EE7700";
+var orange4 = "#DD7000";
+var red1 = "#FF2020";
+var red2 = "#FF0000";
+var red3 = "#EE0000";
+var red4 = "#DD0000";
 var purple1 = "#A020F0";
 
 var days7 = 86400000*7;
@@ -163,9 +173,9 @@ function initialize() {
         map.data.revertStyle();
         map.data.overrideStyle(event.feature, {fillColor: 'white'});
 
-        if( $('input[name="map-type"]:checked').val() == 3 )
+        if( $('input[name="map-type"]:checked').val() == 3 && event.feature.getProperty('spread') )
         {
-            if( event.feature.getProperty('spread') )
+//            if( event.feature.getProperty('spread') && )
             {
                 var date = new Date(event.feature.getProperty('spread'));
                 if( $('input[name="map-div"]:checked').val() == 1 )
@@ -178,6 +188,7 @@ function initialize() {
                 }
 		density = ", 第" + (date.getTime() - spreadTime)/86400000 + "天";
             }
+/*
             else
             {
                 if( $('input[name="map-div"]:checked').val() == 1 )
@@ -192,6 +203,7 @@ function initialize() {
                 }
                 density = "";
             }
+*/
         }
         else
         {
@@ -204,8 +216,8 @@ function initialize() {
             else
             {
 		area = event.feature.getProperty('area');
-                density = parseInt(event.feature.getProperty('num') / area);
-                //density = parseInt(event.feature.getProperty('num') / area) + ", " + parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
+                //density = parseInt(event.feature.getProperty('num') / area);
+                density = parseInt(event.feature.getProperty('num') / area) + ", " + parseInt(event.feature.getProperty('Shape_Area')*10000000)/1000;
                 area = '/' + area + 'km2=';
             }
         }
@@ -320,20 +332,27 @@ function initialize() {
         else if( $('input[name="map-type"]:checked').val() == 3 )
         {
             $('#color1').html('週數: <span class="colorBox" style="background-color: ' + purple1 + ';"></span>0'+
-	    			'<span class="colorBox" style="background-color: ' + red2        + ';"></span>1' +
-				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>2' +
-				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>3' +
-				'<span class="colorBox" style="background-color: ' + orange1     + ';"></span>4');
-	    $('#color2').html('<span class="colorBox" style="background-color: ' + yellow2       + ';"></span>5' +
-				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>6' +
-				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>7' +
-				'<span class="colorBox" style="background-color: ' + green1      + ';"></span>8' +
-				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>9' +
-				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>10' +
-				'<span class="colorBox" style="background-color: ' + gray2       + ';"></span>11' +
-				'<span class="colorBox" style="background-color: ' + gray1       + ';"></span>12');
-            $('#color3').html('<span class="colorBox" style="background-color: ' + pink2         + ';"></span>13' +
-				'<span class="colorBox" style="background-color: ' + pink1       + ';"></span>>14');
+	    			'<span class="colorBox" style="background-color: ' + red4        + ';"></span>1' +
+				'<span class="colorBox" style="background-color: ' + red3        + ';"></span>2' +
+				'<span class="colorBox" style="background-color: ' + red2        + ';"></span>3' +
+				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>4' +
+	    			'<span class="colorBox" style="background-color: ' + orange4     + ';"></span>5' +
+				'<span class="colorBox" style="background-color: ' + orange3     + ';"></span>6' +
+				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>7' +
+				'<span class="colorBox" style="background-color: ' + orange1     + ';"></span>8');
+	    $('#color2').html('<span class="colorBox" style="background-color:   ' + yellow4     + ';"></span>9' +
+				'<span class="colorBox" style="background-color: ' + yellow3     + ';"></span>10' +
+				'<span class="colorBox" style="background-color: ' + yellow2     + ';"></span>11' +
+				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>12' +
+           			'<span class="colorBox" style="background-color: ' + green4      + ';"></span>13' +
+				'<span class="colorBox" style="background-color: ' + green3      + ';"></span>14' +
+				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>15' +
+				'<span class="colorBox" style="background-color: ' + green1      + ';"></span>16');
+	    $('#color3').html('<span class="colorBox" style="background-color: '   + blue4       + ';"></span>17' +
+				'<span class="colorBox" style="background-color: ' + blue3       + ';"></span>18' +
+				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>19' +
+				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>20' +
+				'<span class="colorBox" style="background-color: ' + gray1       + ';"></span>>21');
         }
         else
         {
@@ -373,20 +392,27 @@ function initialize() {
         else if( $('input[name="map-type"]:checked').val() == 3 )
         {
             $('#color1').html('週數: <span class="colorBox" style="background-color: ' + purple1 + ';"></span>0'+
-	    			'<span class="colorBox" style="background-color: ' + red2        + ';"></span>1' +
-				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>2' +
-				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>3' +
-				'<span class="colorBox" style="background-color: ' + orange1     + ';"></span>4');
-	    $('#color2').html('<span class="colorBox" style="background-color: ' + yellow2       + ';"></span>5' +
-				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>6' +
-				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>7' +
-				'<span class="colorBox" style="background-color: ' + green1      + ';"></span>8' +
-				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>9' +
-				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>10' +
-				'<span class="colorBox" style="background-color: ' + gray2       + ';"></span>11' +
-				'<span class="colorBox" style="background-color: ' + gray1       + ';"></span>12');
-            $('#color3').html('<span class="colorBox" style="background-color: ' + pink2         + ';"></span>13' +
-				'<span class="colorBox" style="background-color: ' + pink1       + ';"></span>>14');
+	    			'<span class="colorBox" style="background-color: ' + red4        + ';"></span>1' +
+				'<span class="colorBox" style="background-color: ' + red3        + ';"></span>2' +
+				'<span class="colorBox" style="background-color: ' + red2        + ';"></span>3' +
+				'<span class="colorBox" style="background-color: ' + red1        + ';"></span>4' +
+	    			'<span class="colorBox" style="background-color: ' + orange4     + ';"></span>5' +
+				'<span class="colorBox" style="background-color: ' + orange3     + ';"></span>6' +
+				'<span class="colorBox" style="background-color: ' + orange2     + ';"></span>7' +
+				'<span class="colorBox" style="background-color: ' + orange1     + ';"></span>8');
+	    $('#color2').html('<span class="colorBox" style="background-color:   ' + yellow4     + ';"></span>9' +
+				'<span class="colorBox" style="background-color: ' + yellow3     + ';"></span>10' +
+				'<span class="colorBox" style="background-color: ' + yellow2     + ';"></span>11' +
+				'<span class="colorBox" style="background-color: ' + yellow1     + ';"></span>12' +
+           			'<span class="colorBox" style="background-color: ' + green4      + ';"></span>13' +
+				'<span class="colorBox" style="background-color: ' + green3      + ';"></span>14' +
+				'<span class="colorBox" style="background-color: ' + green2      + ';"></span>15' +
+				'<span class="colorBox" style="background-color: ' + green1      + ';"></span>16');
+	    $('#color3').html('<span class="colorBox" style="background-color: '   + blue4       + ';"></span>17' +
+				'<span class="colorBox" style="background-color: ' + blue3       + ';"></span>18' +
+				'<span class="colorBox" style="background-color: ' + blue2       + ';"></span>19' +
+				'<span class="colorBox" style="background-color: ' + blue1       + ';"></span>20' +
+				'<span class="colorBox" style="background-color: ' + gray1       + ';"></span>>21');
         }
         else
         {
@@ -573,10 +599,10 @@ function showDateMap(clickedDate, cunli) {
                             else
                             {
 				var area = value.getProperty('area');
-                                var count3 = count+val[1];
+                                var count4 = count+val[1];
                                 if( count < 5 || (count/area) < 16 )
                                 {
-                                    if( count3 >= 5 && (count3/area) >= 16 )
+                                    if( count4 >= 5 && (count4/area) >= 16 )
                                     {
                                         var spread = new Date(val[0]).getTime();
                                         value.setProperty('spread', spread);
